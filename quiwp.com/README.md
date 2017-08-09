@@ -5,6 +5,13 @@ Install wordpress via SSH using PHP script
 
 
 =============================================================
+
+
 License and copyright
+
+
 =============================================================
+
+
+
 Licensed under the [MIT License](LICENSE)

@@ -1,5 +1,4 @@
 <?php	
-	echo ("\n\n");
 	echo ("\e[96m Installing MYSQL \e[0m \n\n");
 	system('sudo apt-get install mysql-client mysql-server');
 	echo "\n\n";
@@ -17,21 +16,21 @@
 	
 	echo ("\e[96m Now Install Wordpress \e[0m\n\n");
 	echo ("\n\n");
-	$WEBROOT = readline("Your webroot directory? (Include trailing slash. i.e. /var/www/html)");
-	$VHOSTPATH = readline("Enter your vhost file path: (i.e. /etc/apache2/users/mysite.conf)");
-	$SERVERNAME = readline("What is your server name?");
-	$APACHEUSER = readline("What is the user apache runs under?");
-	$MYSQLDB= readline("Enter MySQL Database name:");
-	$MYSQLHOST = readline("Enter MYSQL Host:");
-	$MYSQLUSER = readline("Enter MYSQL User:");
-	$MYSQLPWD = readline("Enter MYSQL Password:");
+	$WEBROOT = readline("Your webroot directory? (Include trailing slash. i.e. /var/www/html): ");
+	$VHOSTPATH = readline("Enter your vhost file path (i.e. /etc/apache2/users/mysite.conf):  ");
+	$SERVERNAME = readline("What is your server name? ");
+	$APACHEUSER = readline("What is the user apache runs under? ");
+	$MYSQLDB= readline("Enter MySQL Database name: ");
+	$MYSQLHOST = readline("Enter MYSQL Host: ");
+	$MYSQLUSER = readline("Enter MYSQL User: ");
+	$MYSQLPWD = readline("Enter MYSQL Password: ");
 	$_SERVER['HTTP_HOST'] = $SERVERNAME;
 
 	echo ("\n\n \e[96m Creating DB \n\n \e[0m");
 	if(strlen($MYSQLPWD)) 
 	{
-		exec("mysql -h " . $MYSQLHOST . " -u " . $MYSQLUSER . " -p " . $MYSQLPWD . "  'CREATE DATABASE IF NOT EXISTS '" . $MYSQLDB . ";");
-		echo ("\e[92m Your Database Has abeen Successfully Created...! \e[0m");
+		exec("mysql -h " . $MYSQLHOST . " -u " . $MYSQLUSER . " -p " . $MYSQLPWD . "  'CREATE DATABASE IF NOT EXISTS '" . 			$MYSQLDB . ";");
+		echo ("\e[92m Your Database Has been Successfully Created...! \e[0m");
 		echo ("\e[34m");
 		system('date');
 		echo ("\e[0m");	
@@ -45,7 +44,8 @@
 
 	echo ("\e[96m Downloading WordPress \e[0m \n\n");
 	exec('wget http://wordpress.org/latest.tar.gz');
-	echo ("\n\n ########################################## \n\n");		
+
+	echo ("\n\n ########################################## \n\n");	
 	
 	echo ("\e[96m Unpacking WordPresss \e[0m \n\n");
 	exec('tar xzf latest.tar.gz');
@@ -59,7 +59,7 @@
 	exec('chown -R ' . $APACHEUSER . ':ljadminvm ' . $WEBROOT);
 
 	echo("\e[96m Add entry in /etc/hosts file...\e[0m \n\n");
-	exec('echo "192.168.0.5\t' . $SERVERNAME . '" >> sudo /etc/hosts');
+	exec('echo "192.168.0.2\t' . $SERVERNAME . '" >> sudo /etc/hosts');
 
 	echo("\e[96m Setting up the vhost...\e[0m \n\n");
 	$VHOST='NameVirtualHost *:80' . PHP_EOL . PHP_EOL;
@@ -101,15 +101,20 @@
 	$config_file = str_replace("'LOGGED_IN_SALT',   'put your unique phrase here'", "'LOGGED_IN_SALT',   '{$secret_keys[6]}'", $config_file);
 	$config_file = str_replace("'NONCE_SALT',       'put your unique phrase here'", "'NONCE_SALT',       '{$secret_keys[7]}'", $config_file);
 
-	if(file_exists($WEBROOT .'wp-config.php')) {
+	if(file_exists($WEBROOT .'wp-config.php'))
+	{
 	    unlink($WEBROOT .'wp-config.php');
 	}
 
 	$fw = fopen($WEBROOT . 'wp-config.php', "a");
-	foreach ( $config_file as $line_num => $line ) {
+	foreach ( $config_file as $line_num => $line )
+	{
 	    fwrite($fw, $line);
 	}
 	
+	require("plugin-installer.php");
+	require("theme-installer.php");
+
 	echo ("\n\n ########################################## \n\n");		
 	echo("\e[96m Installing WordPress \e[0m \n\n");
 	define('ABSPATH', $WEBROOT);
@@ -124,52 +129,19 @@
 	define('DB_HOST', $MYSQLHOST);
 
 	$_GET['step'] = 2;
-	$_POST['weblog_title'] = "Mysite";
+	$_POST['weblog_title'] = "My Site";
 	$_POST['user_name'] = "user123";
-	$_POST['admin_email'] = "user123@example.com";
+	$_POST['admin_email'] = "uesr123@example.com";
 	$_POST['blog_public'] = true;
-	$_POST['admin_password'] = "";
-	$_POST['admin_password2'] = "";
+	$_POST['admin_password'] = "xxxxx";
+	$_POST['admin_password2'] = "xxxxx";
 
 	require(ABSPATH . 'wp-admin/install.php');
 	require(ABSPATH . 'wp-load.php');
 	require(ABSPATH . WPINC . '/class-wp-walker.php');
 	require(ABSPATH . 'wp-admin/includes/upgrade.php');
-
+		
 	echo('restarting apache');
 	exec('apachectl -k graceful');
 	echo('Your WordPress site is ready. Navigate to http://' . $SERVERNAME . ' in your web browser');
 ?>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-?>
-
